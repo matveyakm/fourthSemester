@@ -1,0 +1,68 @@
+% KaTeX
+
+\Big(
+    (\lambda a.(\lambda \textcolor{ffff77}b.\textcolor{ffff77}{b ~ b}) (\lambda \textcolor{ffff77}b.\textcolor{ffff77}{b ~ b})) b
+\Big)
+\Big(
+    (\lambda c.(c ~ b)) (\lambda a.a)
+\Big)
+~
+\overset
+    {\alpha}
+    \longrightarrow
+\\
+
+\Big(
+    \textcolor{aaddaa}{(\lambda a.(\lambda d.d ~ d) (\lambda d.d ~ d))} \textcolor{ddaadd}b
+\Big)
+\Big(
+    (\lambda c.(c ~ b)) (\lambda a.a)
+\Big)
+~
+\underset
+    {\textcolor{ddaadd}b ~ \mapsto ~ \textcolor{aaddaa}a}
+    {
+        \overset
+            {\beta}
+            \longrightarrow
+    }
+\\
+
+\Big(
+    \lambda d.d ~ d
+\Big)
+\Big(
+    \lambda d.d ~ d
+\Big)
+\Big(
+    \textcolor{aaddaa}{(\lambda c.(c ~ b))} \textcolor{ddaadd}{(\lambda a.a)}
+\Big)
+~
+\underset
+    {\textcolor{ddaadd}{(\lambda a.a)}~\mapsto~\textcolor{aaddaa}c}
+    {
+        \overset
+            {\beta}
+            \longrightarrow
+    }
+\\
+
+\underset
+    {\Omega}
+    {
+        \undergroup
+            {
+                \Big(
+                    \lambda d.d ~ d
+                \Big)
+                \Big(
+                    \lambda d.d ~ d
+                \Big)
+            }
+    }
+\Big(
+    \lambda a.(a ~ b)
+\Big)
+\\
+
+\bm{Ответ:} ~ \text{нормальной формы не существует.}
