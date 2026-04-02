@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
     <RootNamespace>HashTable.Tests</RootNamespace>
+    <OutputType>Library</OutputType>
+    <NoWarn>FS0988</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

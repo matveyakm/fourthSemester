@@ -5,6 +5,8 @@
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <OutputType>Library</OutputType>
+    <NoWarn>FS0988</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
