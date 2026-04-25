@@ -1,0 +1,116 @@
+%KaTeX
+
+\def\l{\lambda}
+
+S ~ K ~ K ~ = I\\
+
+\textcolor{#ada}{
+    \Big(
+        	\l x . \big(\l y . \big( \l z. ~ x ~ z ~ (y ~ z) \big) \big)
+    \Big)
+}
+\textcolor{#dad}{
+    \Big(
+        \l a . (\l b . a)
+    \Big)
+}
+\Big(
+    \l c . (\l d . c)
+\Big)
+~
+\underset{
+    \textcolor{ddaadd}{
+        (\l a.(\l b . a))
+    }
+    ~ \mapsto ~
+    \textcolor{aaddaa}{
+        x
+    }
+}{
+    \overset{\beta}\longrightarrow
+}
+\\
+
+\textcolor{#ada}{
+    \Big(
+        \l y.\big(\l z. ~ (\l a . ( \l b . a)) ~ z ~ (y ~ z)\big)
+    \Big)
+}
+\textcolor{#dad}{
+    \Big(
+        \l c.(\l d . c)
+    \Big)
+}
+~
+\underset{
+    \textcolor{ddaadd}{
+        (\l c . (\l d . c))
+    }
+    ~\mapsto~
+    \textcolor{aaddaa}{
+        y
+    }
+}{
+    \overset{\beta}\longrightarrow
+}
+\\
+
+\Big(
+    \l z.~
+    \big(
+        \textcolor{#ada}{
+            (\l a.( \l b.a))
+        }
+        ~
+        \textcolor{#dad}{
+            z
+        }
+    \big)
+    ~
+    \big(
+        (\l c . ( \l d . c)) ~ z
+    \big)
+\Big)
+~
+\underset{
+    \textcolor{ddaadd}{
+        z
+    }
+    ~\mapsto~
+    \textcolor{aaddaa}{
+        a
+    }
+}{
+    \overset{\beta}\longrightarrow
+}
+\\
+
+\Big(
+    \l z.~
+    \textcolor{#ada}{
+        \big(
+            \l b. ~ z
+        \big)
+    }
+    ~
+    \textcolor{#dad}{
+        \big(
+            (\l c . (\l d . c)) ~ z
+        \big)
+    }
+\Big)
+~
+\underset{
+    \textcolor{ddaadd}{
+        ((\l c . ( \l d . c)) ~ z )
+    }
+    ~\mapsto~
+    \textcolor{aaddaa}{
+        b
+    }
+}{
+    \overset{\beta}\longrightarrow
+}
+\\
+
+(\l z.~z)
