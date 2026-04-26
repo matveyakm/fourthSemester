@@ -16,9 +16,14 @@ module PowerSequence.PowerSequenceGenerator
 /// <param name="n">Starting exponent.</param>
 /// <param name="m">Number of elements to generate.</param>
 /// <returns>List of powers of 2.</returns>
-let generatePowerSequence n m =
-    let rec buildSequence current acc count =
-        if count > m then acc
-        else buildSequence (current * 2.0) (current :: acc) (count + 1)
-    let startValue = if n >= 0 then float (pown 2 n) else 1.0 / float (pown 2 -n)
-    buildSequence startValue [] 0 |> List.rev
+let generatePowerSequence n m = 
+    if m < 0 then
+        failwith "Number of elements to generate must be a non-negative integer."
+    else
+        let startValue = if n >= 0 then 2.0 ** (float n) else 1.0 / (2.0 ** (float -n))
+        let rec buildSequence acc count =
+            if count > m then acc
+            else
+                let current = if count = 0 then startValue else List.head acc * 2.0
+                buildSequence (current :: acc) (count + 1)
+        buildSequence [] 0 |> List.rev
