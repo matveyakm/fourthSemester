@@ -10,13 +10,12 @@ open System.Numerics
 /// Computes the n-th Fibonacci number using tail recursion for linear time complexity.
 /// </summary>
 /// <param name="n">The index of the Fibonacci number to compute (0-indexed).</param>
-/// <returns>The n-th Fibonacci number.</returns>
+/// <returns>Some n-th Fibonacci number, or None if n is negative.</returns>
 let fib (n: int) =
-    if n < 0 then
-        invalidArg "n" "Index must be non-negative"
-    
-    let rec loop a b count =
-        if count = 0 then a
-        else loop b (a + b) (count - 1)
-    
-    loop 0I 1I n
+    if n < 0 then None
+    else
+        let rec loop prev cur count =
+            if count = 0 then Some prev
+            else loop cur (prev + cur) (count - 1)
+        
+        loop 0I 1I n
