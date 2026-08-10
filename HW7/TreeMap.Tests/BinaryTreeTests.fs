@@ -6,11 +6,11 @@ module BinaryTreeTests
 
 open NUnit.Framework
 open FsUnit
-open TreeMap
+open BinaryTree
 
-let leaf = BinaryTree.Leaf
+let leaf = Leaf
 
-let node v left right = BinaryTree.Node(v, left, right)
+let node v left right = Tree.Node(v, left, right)
 
 /// <summary>
 /// Tests mapTree with identity function - should return identical tree structure.
@@ -18,7 +18,7 @@ let node v left right = BinaryTree.Node(v, left, right)
 [<Test>]
 let ``mapTree with identity function returns same tree`` () =
     let tree = node 1 (node 2 leaf leaf) (node 3 leaf leaf)
-    BinaryTree.mapTree id tree |> should equal tree
+    mapTree id tree |> should equal tree
 
 /// <summary>
 /// Tests mapTree with increment function on integer tree.
@@ -27,7 +27,7 @@ let ``mapTree with identity function returns same tree`` () =
 let ``mapTree increments all values`` () =
     let tree = node 1 (node 2 leaf leaf) (node 3 leaf leaf)
     let expected = node 2 (node 3 leaf leaf) (node 4 leaf leaf)
-    BinaryTree.mapTree ((+) 1) tree |> should equal expected
+    mapTree ((+) 1) tree |> should equal expected
 
 /// <summary>
 /// Tests mapTree with string transformation on integer tree.
@@ -36,14 +36,14 @@ let ``mapTree increments all values`` () =
 let ``mapTree converts integers to strings`` () =
     let tree = node 10 (node 20 leaf leaf) (node 30 leaf leaf)
     let expected = node "10" (node "20" leaf leaf) (node "30" leaf leaf)
-    BinaryTree.mapTree string tree |> should equal expected
+    mapTree string tree |> should equal expected
 
 /// <summary>
 /// Tests mapTree with empty tree - should return empty tree.
 /// </summary>
 [<Test>]
 let ``mapTree with empty tree returns empty tree`` () =
-    let emptyTree = BinaryTree.Leaf : BinaryTree<int> in BinaryTree.mapTree (fun x -> x * 2) emptyTree |> should equal emptyTree
+    let emptyTree = Leaf : Tree<int> in mapTree (fun x -> x * 2) emptyTree |> should equal emptyTree
 
 /// <summary>
 /// Tests mapTree with single node tree.
@@ -52,7 +52,7 @@ let ``mapTree with empty tree returns empty tree`` () =
 let ``mapTree with single node`` () =
     let tree = node 5 leaf leaf
     let expected = node 10 leaf leaf
-    BinaryTree.mapTree ((*) 2) tree |> should equal expected
+    mapTree ((*) 2) tree |> should equal expected
 
 /// <summary>
 /// Tests mapTree with type conversion (int to float).
@@ -61,7 +61,7 @@ let ``mapTree with single node`` () =
 let ``mapTree converts int to float`` () =
     let tree = node 1 (node 2 leaf leaf) (node 3 leaf leaf)
     let expected = node 1.0 (node 2.0 leaf leaf) (node 3.0 leaf leaf)
-    BinaryTree.mapTree float tree |> should equal expected
+    mapTree float tree |> should equal expected
 
 /// <summary>
 /// Tests mapTree preserves original tree unchanged.
@@ -69,5 +69,5 @@ let ``mapTree converts int to float`` () =
 [<Test>]
 let ``mapTree does not modify original tree`` () =
     let original = node 1 (node 2 leaf leaf) leaf
-    let _ = BinaryTree.mapTree ((*) 10) original
+    let _ = mapTree ((*) 10) original
     original |> should equal (node 1 (node 2 leaf leaf) leaf)
