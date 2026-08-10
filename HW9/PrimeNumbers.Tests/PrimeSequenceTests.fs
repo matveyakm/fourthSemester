@@ -57,3 +57,13 @@ let ``primeSequence contains primes up to 100`` () =
 let ``primeSequence is infinite`` () =
     let first100 = PrimeNumbers.primeSequence |> Seq.take 100 |> Seq.length
     Assert.That(first100, Is.EqualTo(100))
+
+[<Test>]
+let ``isPrime works correctly for a large prime number`` () =
+    Assert.That(PrimeNumbers.isPrime 9973, Is.True)
+    Assert.That(PrimeNumbers.isPrime 7919, Is.True)
+
+[<Test>]
+let ``isPrime works correctly for a large composite number`` () =
+    Assert.That(PrimeNumbers.isPrime 9999, Is.False)
+    Assert.That(PrimeNumbers.isPrime 7921, Is.False)
