@@ -20,7 +20,7 @@ let generatePowerSequence n m =
     if m < 0 then
         failwith "Number of elements to generate must be a non-negative integer."
     else
-        let startValue = if n >= 0 then 2.0 ** (float n) else 1.0 / (2.0 ** (float -n))
+        let startValue = 2.0 ** (float n)
         let rec buildSequence acc count =
             if count > m then acc
             else
