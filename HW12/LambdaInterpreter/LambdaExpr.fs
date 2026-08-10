@@ -43,16 +43,15 @@ module LambdaCalc =
         match body with
         | Var y when y = x -> replacement
         | Var _ -> body
+        | Lam (y, _) when y = x -> body
         | Lam (y, bodyExpr) ->
-            if y = x then Lam (y, bodyExpr)
-            else
-                let freeInReplacement = freeVariables replacement
-                if freeInReplacement.Contains(y) then
-                    let newY = generateFreshVar (Set.add y freeInReplacement) y
-                    let newBody = substitute bodyExpr y (Var newY)
-                    substitute newBody x replacement
-                else
-                    Lam (y, substitute bodyExpr x replacement)
+             let freeInReplacement = freeVariables replacement
+             if freeInReplacement.Contains(y) then
+                 let newY = generateFreshVar (Set.add y freeInReplacement) y
+                 let newBody = substitute bodyExpr y (Var newY)
+                 substitute newBody x replacement
+             else
+                 Lam (y, substitute bodyExpr x replacement)
         | App (e1, e2) ->
             App (substitute e1 x replacement, substitute e2 x replacement)
 
