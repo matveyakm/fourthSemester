@@ -10,14 +10,15 @@ module HW14.ScaleList
 /// <param name="x">The scalar multiplier</param>
 /// <param name="l">The input list</param>
 /// <returns>A new list with each element multiplied by x</returns>
-let func x l = List.map (fun y -> y * x) l
+let scale x l = List.map (fun y -> y * x) l
 
 /// <summary>
-/// Point-free version using operator section.
+/// Point-free version of scale: composed from List.map and the multiplication
+/// operator, it preserves the same behaviour without naming any arguments.
 /// </summary>
-let funcPointFree x l = List.map ((*) x) l
+let scalePointFree = List.map << (*)
 
 /// <summary>
 /// Pipeline version using |> operator to pass the list.
 /// </summary>
-let funcPipeline x l = l |> List.map ((*) x)
+let scalePipeline x l = l |> List.map ((*) x)
