@@ -39,10 +39,9 @@ let validateBrackets (input: string) =
     let rec validateTailRecursive (remaining: list<char>) (stack: list<char>) =
         match remaining with
         | [] -> List.isEmpty stack
+        | current::rest -> when isOpening current ->
+            validateTailRecursive rest (current::stack)
         | current::rest ->
-            if isOpening current then
-                validateTailRecursive rest (current::stack)
-            else
                 match current with
                 | ')' | ']' | '}' when isMatching current stack ->
                     validateTailRecursive rest (List.tail stack)
