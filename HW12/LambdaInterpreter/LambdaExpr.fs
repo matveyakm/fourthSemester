@@ -41,9 +41,8 @@ module LambdaCalc =
     /// </summary>
     let rec substitute (body: LambdaExpr) (x: string) (replacement: LambdaExpr) : LambdaExpr =
         match body with
-        | Var y ->
-            if y = x then replacement
-            else Var y
+        | Var y when y = x -> replacement
+        | Var _ -> body
         | Lam (y, bodyExpr) ->
             if y = x then Lam (y, bodyExpr)
             else
