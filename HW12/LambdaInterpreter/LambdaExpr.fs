@@ -2,20 +2,18 @@
 // Copyright (c) matveyakm. All rights reserved.
 // </copyright>
 
-namespace LambdaInterpreter
-
 /// <summary>
-/// Lambda expression defined as discriminated union
+/// Module for lambda calculus: lambda expressions, alpha-conversion and beta-reduction
 /// </summary>
-type LambdaExpr =
-    | Var of string
-    | Lam of string * LambdaExpr
-    | App of LambdaExpr * LambdaExpr
+module LambdaCalc
 
-/// <summary>
-/// Module for lambda calculus operations: alpha-conversion and beta-reduction
-/// </summary>
-module LambdaCalc =
+    /// <summary>
+    /// Lambda expression defined as discriminated union
+    /// </summary>
+    type LambdaExpr =
+        | Var of string
+        | Lam of string * LambdaExpr
+        | App of LambdaExpr * LambdaExpr
 
     /// <summary>
     /// Generate a fresh variable name that doesn't conflict with given variables
@@ -37,21 +35,24 @@ module LambdaCalc =
         | App (e1, e2) -> Set.union (freeVariables e1) (freeVariables e2)
 
     /// <summary>
-    /// Capture-avoiding substitution: substitute all free occurrences of x with expr
+    /// Capture-avoiding substitution: substitute all free occurrences of x with replacement
     /// </summary>
-    let rec substitute (body: LambdaExpr) (x: string) (replacement: LambdaExpr) : LambdaExpr =
-        match body with
+    let rec substitute term x replacement =
+        match term with
         | Var y when y = x -> replacement
-        | Var _ -> body
-        | Lam (y, _) when y = x -> body
+        | Var _ -> term
+        | Lam (y, _) when y = x -> term
         | Lam (y, bodyExpr) ->
-             let freeInReplacement = freeVariables replacement
-             if freeInReplacement.Contains(y) then
-                 let newY = generateFreshVar (Set.add y freeInReplacement) y
-                 let newBody = substitute bodyExpr y (Var newY)
-                 substitute newBody x replacement
-             else
-                 Lam (y, substitute bodyExpr x replacement)
+            let freeInBody = freeVariables bodyExpr
+            let freeInReplacement = freeVariables replacement
+            if Set.contains x freeInBody && Set.contains y freeInReplacement then
+                let newY = generateFreshVar (Set.add y freeInReplacement) y
+                let newBody = substitute bodyExpr y (Var newY)
+                Lam (newY, substitute newBody x replacement)
+            elif Set.contains x freeInBody then
+                Lam (y, substitute bodyExpr x replacement)
+            else
+                Lam (y, bodyExpr)
         | App (e1, e2) ->
             App (substitute e1 x replacement, substitute e2 x replacement)
 
@@ -76,9 +77,11 @@ module LambdaCalc =
         | Var _ -> None
 
     /// <summary>
-    /// Full beta-reduction to normal form (normal strategy)
+    /// Full beta-reduction to normal form (normal strategy) with a limit on the number of steps
     /// </summary>
-    let rec evaluate (expr: LambdaExpr) : LambdaExpr =
-        match betaReduce expr with
-        | Some reduced -> evaluate reduced
-        | None -> expr
+    let rec evaluate maxSteps expr =
+        if maxSteps <= 0 then expr
+        else
+            match betaReduce expr with
+            | Some reduced -> evaluate (maxSteps - 1) reduced
+            | None -> expr

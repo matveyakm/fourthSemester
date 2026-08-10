@@ -6,29 +6,42 @@ module Tests
 
 open NUnit.Framework
 open FsUnit
-open LambdaInterpreter
+open LambdaCalc
 
 let private lam x body = LambdaExpr.Lam(x, body)
 let private app func arg = LambdaExpr.App(func, arg)
 let private v name = LambdaExpr.Var name
 
 /// <summary>
-/// Create variable expression
+/// Variable expression is a variable with the expected name
 /// </summary>
 [<Test>]
-let createVariable () = v "x" |> should equal (v "x")
+let createVariable () =
+    match v "x" with
+    | Var name -> name |> should equal "x"
+    | _ -> Assert.Fail "Expected variable x"
 
 /// <summary>
-/// Create lambda abstraction
+/// Lambda abstraction is built from the bound variable name and the body
 /// </summary>
 [<Test>]
-let createLambdaAbstraction () = lam "x" (v "x") |> should equal (lam "x" (v "x"))
+let createLambdaAbstraction () =
+    match lam "x" (v "x") with
+    | Lam (name, body) ->
+        name |> should equal "x"
+        body |> should equal (v "x")
+    | _ -> Assert.Fail "Expected lambda abstraction"
 
 /// <summary>
-/// Create application expression
+/// Application is built from function and argument
 /// </summary>
 [<Test>]
-let createApplication () = app (v "f") (v "x") |> should equal (app (v "f") (v "x"))
+let createApplication () =
+    match app (v "f") (v "x") with
+    | App (func, arg) ->
+        func |> should equal (v "f")
+        arg |> should equal (v "x")
+    | _ -> Assert.Fail "Expected application"
 
 /// <summary>
 /// Free variables of variable
@@ -87,7 +100,7 @@ let betaReduceKCombinatorOneStep () =
 [<Test>]
 let evaluateIIToNormalForm () =
     let identity = lam "x" (v "x")
-    LambdaCalc.evaluate (app identity identity) |> should equal (lam "x" (v "x"))
+    LambdaCalc.evaluate 100 (app identity identity) |> should equal (lam "x" (v "x"))
 
 /// <summary>
 /// Evaluate K combinator to normal form
@@ -95,7 +108,7 @@ let evaluateIIToNormalForm () =
 [<Test>]
 let evaluateKCombinatorToNormalForm () =
     let k = lam "x" (lam "y" (v "x"))
-    LambdaCalc.evaluate (app (app k (v "a")) (v "b")) |> should equal (v "a")
+    LambdaCalc.evaluate 100 (app (app k (v "a")) (v "b")) |> should equal (v "a")
 
 /// <summary>
 /// Evaluate normal order leftmost outermost
@@ -103,7 +116,7 @@ let evaluateKCombinatorToNormalForm () =
 [<Test>]
 let evaluateNormalOrderLeftmostOuterMost () =
     let id = lam "x" (v "x")
-    LambdaCalc.evaluate (app id (app id (v "z"))) |> should equal (v "z")
+    LambdaCalc.evaluate 100 (app id (app id (v "z"))) |> should equal (v "z")
 
 /// <summary>
 /// Beta reduce on variable
@@ -124,13 +137,24 @@ let betaReduceOnLambdaWithIrreducibleBody () = LambdaCalc.betaReduce (lam "x" (v
 let betaReduceOnNonRedomApplication () = LambdaCalc.betaReduce (app (v "f") (v "x")) |> should equal None
 
 /// <summary>
-/// Substitution avoids capture
+/// Substitution renames the bound variable to avoid capturing free variables of the replacement
 /// </summary>
 [<Test>]
 let substitutionAvoidsCapture () =
-    let x = lam "x" (app (v "y") (v "x"))
-    let yExpr = v "x"
-    LambdaCalc.substitute x "x" yExpr |> should equal (lam "x" (app (v "y") (v "x")))
+    let expr = lam "x" (app (v "x") (v "y"))
+    let replacement = v "x"
+    let result = LambdaCalc.substitute expr "y" replacement
+    result |> should equal (lam "x_1" (app (v "x_1") (v "x")))
+
+/// <summary>
+/// Beta reduction of (λx. λy. x y) y renames the bound y to avoid capture
+/// </summary>
+[<Test>]
+let alphaConversionDuringBetaReduction () =
+    let expr = app (lam "x" (lam "y" (app (v "x") (v "y")))) (v "y")
+    let expected = lam "y_1" (app (v "y") (v "y_1"))
+    LambdaCalc.betaReduce expr |> should equal (Some expected)
+    LambdaCalc.evaluate 100 expr |> should equal expected
 
 /// <summary>
 /// Substitute variable not in body
