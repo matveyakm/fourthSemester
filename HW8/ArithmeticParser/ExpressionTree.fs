@@ -15,33 +15,54 @@ type Expression =
     | Div of Expression * Expression
 
 /// <summary>
+/// Divides the given operands, returning None on division by zero.
+/// </summary>
+/// <param name="leftOperand">The result of the left operand evaluation.</param>
+/// <param name="rightOperand">The result of the right operand evaluation.</param>
+/// <returns>The quotient, or None if the divisor is zero.</returns>
+let private safeDivide leftOperand rightOperand =
+    match leftOperand, rightOperand with
+    | Some leftValue, Some rightValue when rightValue <> 0 -> Some (leftValue / rightValue)
+    | _ -> None
+
+/// <summary>
 /// Evaluates the given expression tree and returns the result.
-/// Uses tail recursion for evaluation.
+/// Returns None if division by zero occurs.
 /// </summary>
 /// <param name="expr">The expression tree to evaluate.</param>
-/// <returns>The integer result of the expression evaluation.</returns>
+/// <returns>The result of the evaluation, or None if division by zero occurs.</returns>
 let rec evaluate expr =
     match expr with
-    | Number n -> n
-    | Add (left, right) -> evaluate left + evaluate right
-    | Sub (left, right) -> evaluate left - evaluate right
-    | Mul (left, right) -> evaluate left * evaluate right
-    | Div (left, right) ->
-        let divisor = evaluate right
-        if divisor = 0 then failwith "Division by zero"
-        evaluate left / divisor
+    | Number n -> Some n
+    | Add (left, right) -> Option.map2 (+) (evaluate left) (evaluate right)
+    | Sub (left, right) -> Option.map2 (-) (evaluate left) (evaluate right)
+    | Mul (left, right) -> Option.map2 (*) (evaluate left) (evaluate right)
+    | Div (left, right) -> safeDivide (evaluate left) (evaluate right)
 
 /// <summary>
 /// Evaluates the expression using continuation-passing style for tail recursion.
+/// Returns None if division by zero occurs.
 /// </summary>
+/// <param name="expr">The expression tree to evaluate.</param>
+/// <returns>The result of the evaluation, or None if division by zero occurs.</returns>
 let evaluateTailRecursive expr =
-    let rec evaluateK expr k =
+    let rec evaluateK expr cont =
         match expr with
-        | Number n -> k n
-        | Add (left, right) -> evaluateK left (fun leftVal -> evaluateK right (fun rightVal -> k (leftVal + rightVal)))
-        | Sub (left, right) -> evaluateK left (fun leftVal -> evaluateK right (fun rightVal -> k (leftVal - rightVal)))
-        | Mul (left, right) -> evaluateK left (fun leftVal -> evaluateK right (fun rightVal -> k (leftVal * rightVal)))
-        | Div (left, right) -> evaluateK left (fun leftVal -> evaluateK right (fun rightVal -> 
-            if rightVal = 0 then failwith "Division by zero"
-            else k (leftVal / rightVal)))
+        | Number n -> cont (Some n)
+        | Add (left, right) ->
+            evaluateK left (fun leftValue ->
+                evaluateK right (fun rightValue ->
+                    cont (Option.map2 (+) leftValue rightValue)))
+        | Sub (left, right) ->
+            evaluateK left (fun leftValue ->
+                evaluateK right (fun rightValue ->
+                    cont (Option.map2 (-) leftValue rightValue)))
+        | Mul (left, right) ->
+            evaluateK left (fun leftValue ->
+                evaluateK right (fun rightValue ->
+                    cont (Option.map2 (*) leftValue rightValue)))
+        | Div (left, right) ->
+            evaluateK left (fun leftValue ->
+                evaluateK right (fun rightValue ->
+                    cont (safeDivide leftValue rightValue)))
     evaluateK expr id
