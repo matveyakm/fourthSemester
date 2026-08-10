@@ -12,23 +12,22 @@ let private isOpening = function
     | _ -> false
 
 /// <summary>
-/// Gets the matching closing bracket for an opening bracket
+/// Gets the matching closing bracket for an opening bracket,
+/// or None if the character is not an opening bracket
 /// </summary>
 let private getClosingBracket = function
-    | '(' -> ')'
-    | '[' -> ']'
-    | '{' -> '}'
-    | _ -> failwith "Not an opening bracket"
+    | '(' -> Some ')'
+    | '[' -> Some ']'
+    | '{' -> Some '}'
+    | _ -> None
 
 /// <summary>
-/// Checks if two brackets match (one opening, one closing)
+/// Checks if the given closing bracket matches the opening bracket on top of the stack
 /// </summary>
 let private isMatching closingBracket stack =
     match stack with
     | [] -> false
-    | opening::rest ->
-        let expectedClosing = getClosingBracket opening
-        expectedClosing = closingBracket
+    | opening::_ -> getClosingBracket opening = Some closingBracket
 
 /// <summary>
 /// Validates bracket sequence using a stack-based approach with tail recursion
@@ -39,14 +38,13 @@ let validateBrackets (input: string) =
     let rec validateTailRecursive (remaining: list<char>) (stack: list<char>) =
         match remaining with
         | [] -> List.isEmpty stack
-        | current::rest -> when isOpening current ->
+        | current::rest when isOpening current ->
             validateTailRecursive rest (current::stack)
         | current::rest ->
-                match current with
-                | ')' | ']' | '}' when isMatching current stack ->
-                    validateTailRecursive rest (List.tail stack)
-                | _ when not (isOpening current) && not (current = ')' || current = ']' || current = '}') ->
-                    validateTailRecursive rest stack
-                | _ -> false
+            match current with
+            | ')' | ']' | '}' when isMatching current stack ->
+                validateTailRecursive rest (List.tail stack)
+            | ')' | ']' | '}' -> false
+            | _ -> validateTailRecursive rest stack
     
     validateTailRecursive chars []
