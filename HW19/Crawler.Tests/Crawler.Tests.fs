@@ -286,7 +286,7 @@ let ``printCrawlResult prints the address and the size of every page`` () =
     finally
         Console.SetOut(previous)
 
-    output.ToString() |> should equal "http://example.com/page — 42 символов\n"
+    output.ToString() |> should equal ("http://example.com/page — 42 символов" + Environment.NewLine)
 
 /// <summary>
 /// Verifies that failed pages are described on the error stream.
@@ -307,7 +307,7 @@ let ``printCrawlResult reports failed pages on the error stream`` () =
     finally
         Console.SetError(previous)
 
-    output.ToString() |> should equal "Failed to download http://example.com/broken: 404 Not Found\n"
+    output.ToString() |> should equal ("Failed to download http://example.com/broken: 404 Not Found" + Environment.NewLine)
 
 /// <summary>
 /// Verifies the defaults used when no options are provided.
