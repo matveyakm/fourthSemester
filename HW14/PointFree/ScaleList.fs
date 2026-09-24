@@ -16,6 +16,12 @@ let scale x l = List.map (fun y -> y * x) l
 /// Point-free version of scale: composed from List.map and the multiplication
 /// operator, it preserves the same behaviour without naming any arguments.
 /// </summary>
+// Вывод (последовательное η-преобразование):
+//   scale x l = List.map (fun y -> y * x) l      // исходное определение
+//   scale x   = List.map (fun y -> y * x)        // η-редукция по l
+//             = List.map ((*) x)                 // fun y -> y * x ≡ (*) x
+//             = (List.map << (*)) x              // представление в виде композиции
+//   scale     = List.map << (*)                  // η-редукция по x
 let scalePointFree = List.map << (*)
 
 /// <summary>

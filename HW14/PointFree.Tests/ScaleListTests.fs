@@ -94,7 +94,7 @@ let ``Negative multiplier works correctly`` () =
 let ``FsCheck: scalePointFree produces same results as original for random inputs`` () =
     let prop ((x, l): (int * int list)) =
         scalePointFree x l = scale x l
-    prop |> Check.Quick
+    prop |> Check.QuickThrowOnFailure
 
 /// <summary>
 /// FsCheck test: verifies pipeline version matches original for random inputs.
@@ -103,7 +103,7 @@ let ``FsCheck: scalePointFree produces same results as original for random input
 let ``FsCheck: scalePipeline produces same results as original for random inputs`` () =
     let prop ((x, l): (int * int list)) =
         scalePipeline x l = scale x l
-    prop |> Check.Quick
+    prop |> Check.QuickThrowOnFailure
 
 /// <summary>
 /// FsCheck test: verifies all three functions are equivalent for random inputs.
@@ -112,4 +112,4 @@ let ``FsCheck: scalePipeline produces same results as original for random inputs
 let ``FsCheck: all three functions are equivalent for random inputs`` () =
     let prop ((x, l): (int * int list)) =
         scale x l = scalePointFree x l && scalePointFree x l = scalePipeline x l
-    prop |> Check.Quick
+    prop |> Check.QuickThrowOnFailure
