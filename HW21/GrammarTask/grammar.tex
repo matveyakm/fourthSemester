@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{Синтаксис грамматики}
+
+\begin{align*}
+    \langle Program \rangle    &::= \langle Item \rangle \mid \langle Item \rangle \ \langle ItemSeparator \rangle \ \langle Program \rangle \\
+    \langle ItemSeparator \rangle &::= \texttt{NEWLINE} \\
+    \langle Item \rangle       &::= \langle Definition \rangle \mid \langle Expr \rangle \\
+    \langle Definition \rangle &::= \texttt{let} \ \langle Identifier \rangle \ \texttt{=} \ \langle Expr \rangle \\
+    \langle Expr \rangle       &::= \langle Abstraction \rangle \mid \langle Argument \rangle \mid \langle Argument \rangle \ \langle Arguments \rangle \\
+    \langle Abstraction \rangle &::= \texttt{\textbackslash} \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle \\
+    \langle Identifiers \rangle &::= \langle Identifier \rangle \mid \langle Identifier \rangle \ \langle Identifiers \rangle \\
+    \langle Arguments \rangle  &::= \langle ApplicationArgument \rangle \mid \langle ApplicationArgument \rangle \ \langle Arguments \rangle \\
+    \langle ApplicationArgument \rangle &::= \langle Argument \rangle \mid \langle Abstraction \rangle \\
+    \langle Argument \rangle   &::= \langle Identifier \rangle \mid \texttt{(} \ \langle Expr \rangle \ \texttt{)}
+\end{align*}
+
+Имя переменной $\langle Identifier \rangle$ задается следующими правилами:
+\begin{align*}
+    \langle Identifier \rangle &::= \langle Letter \rangle \mid \langle Letter \rangle \ \langle IdentifierTail \rangle \\
+    \langle IdentifierTail \rangle &::= \langle LetterOrDigit \rangle \mid \langle LetterOrDigit \rangle \ \langle IdentifierTail \rangle \\
+    \langle LetterOrDigit \rangle &::= \langle Letter \rangle \mid \langle Digit \rangle
+\end{align*}
+где $\langle Letter \rangle$ --- латинская буква в любом регистре, $\langle Digit \rangle$ --- цифра.
+Содержательно: имя начинается с латинской буквы и состоит далее из латинских букв и цифр.
+Ключевое слово \texttt{let} зарезервировано и не может быть именем переменной.
+
+Пробелы и табуляции между лексемами незначимы. Терминал \texttt{NEWLINE} обозначает конец строки; несколько переводов строк подряд (пустые строки) допускаются и трактуются как один разделитель. Элементы программы (определения и выражения) записываются каждый на своей строке; каждое определение занимает ровно одну строку, и на строке не может быть более одного определения.
+
+\section{Свойства грамматики}
+
+\begin{enumerate}
+    \item \textbf{Отсутствие эпсилон-переходов.} Правая часть каждого правила непуста: ни одна альтернатива не является $\varepsilon$. Последовательности задаются только правилами факторизованного вида $X ::= A \mid A \ B$, поэтому пустой список ни в одном месте не выводим, а пустое слово не выводится ни из одного нетерминала.
+    \item \textbf{Программа не может быть пустой.} Поскольку $\langle Program \rangle$ требует хотя бы один $\langle Item \rangle$, а $\langle Item \rangle$ непуст, пустая программа не выводима.
+    \item \textbf{Определения необязательны.} $\langle Item \rangle ::= \langle Definition \rangle \mid \langle Expr \rangle$, поэтому программа может состоять из одних выражений, одних определений или их произвольного чередования, например:
+    \begin{verbatim}
+let I = \x.x
+I y
+let t = a b c
+    \end{verbatim}
+    Вычисляется последнее выражение программы; каждое определение действует на все последующие выражения.
+    \item \textbf{Однозначность.} Каждое выражение имеет единственное дерево вывода: правила записаны в факторизованной форме $X ::= A \mid A \ B$ без левой рекурсии и эпсилон-переходов, а выбор альтернативы определяется первым символом и наличием последующих аргументов, без просмотра всего входа: \texttt{let} однозначно начинает определение, \texttt{\textbackslash} --- абстракцию, а атом, за которым следует хотя бы один аргумент, однозначно порождает ветвь $\langle Argument \rangle \ \langle Arguments \rangle$, без аргументов --- только $\langle Argument \rangle$. Зарезервированное слово \texttt{let} не может встретиться в качестве имени.
+    \item \textbf{Абстракция как аргумент.} Аппликация может заканчиваться лямбда-абстракцией без скобок
+    \texttt{\textbackslash x y. y x \textbackslash x.x}, что эквивалентно \texttt{\textbackslash x y. ((y x) (\textbackslash x.x))}; это обеспечивает правило
+    $\langle ApplicationArgument \rangle ::= \langle Argument \rangle \mid \langle Abstraction \rangle$.
+    \item \textbf{Отсутствие левой рекурсии и факторизация.} Ни в одном правиле нет левой рекурсии. Каждая конструкция записана в форме $X ::= A \mid A \ B$: в $\langle Expr \rangle ::= \langle Abstraction \rangle \mid \langle Argument \rangle \mid \langle Argument \rangle \ \langle Arguments \rangle$ вторая и третья ветви имеют общий префикс $\langle Argument \rangle$ и различаются наличием непустого списка $\langle Arguments \rangle$, поэтому аппликация и одиночный аргумент различимы: за атомом следует хотя бы один аргумент --- третья ветвь, иначе --- вторая.
+    \item \textbf{Факторизация для перечислений.} Списки $\langle Identifiers \rangle$ и $\langle Arguments \rangle$ записаны единообразно в форме $X ::= A \mid A \ B$ и различаются только типом элемента: $\langle Identifier \rangle$ и $\langle ApplicationArgument \rangle$ соответственно.
+\end{enumerate}
+
+\section{Примеры вывода}
+
+\subsection{Пример 1: Определение \texttt{let K = \textbackslash x y. x}}
+\begin{itemize}
+    \item $\langle Program \rangle \Rightarrow \langle Item \rangle$
+    \item $\Rightarrow \langle Definition \rangle$
+    \item $\Rightarrow \texttt{let} \ \langle Identifier \rangle \ \texttt{=} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K} \ \texttt{=} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \langle Abstraction \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash} \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash} \ \langle Identifier \rangle \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash x} \ \langle Identifier \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash x y} \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash x y} \ \texttt{.} \ \langle Argument \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash x y} \ \texttt{.} \ \langle Identifier \rangle$
+    \item $\Rightarrow \texttt{let K =} \ \texttt{\textbackslash x y} \ \texttt{. x}$
+\end{itemize}
+
+\subsection{Пример 2: Аппликация, заканчивающаяся абстракцией \texttt{\textbackslash x y. y x \textbackslash x.x}}
+\begin{itemize}
+    \item $\langle Expr \rangle \Rightarrow \langle Abstraction \rangle$
+    \item $\Rightarrow \texttt{\textbackslash} \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash} \ \langle Identifier \rangle \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x} \ \langle Identifier \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{.} \ \langle Argument \rangle \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y} \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y} \ \langle ApplicationArgument \rangle \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \langle ApplicationArgument \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \langle Abstraction \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \texttt{\textbackslash} \ \langle Identifiers \rangle \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \texttt{\textbackslash x} \ \texttt{.} \ \langle Expr \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \texttt{\textbackslash x .} \ \langle Argument \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \texttt{\textbackslash x .} \ \langle Identifier \rangle$
+    \item $\Rightarrow \texttt{\textbackslash x y} \ \texttt{. y x} \ \texttt{\textbackslash x . x}$
+\end{itemize}
+
+\subsection{Пример 3: Аппликация \texttt{S K K}}
+\begin{itemize}
+    \item $\langle Expr \rangle \Rightarrow \langle Argument \rangle \ \langle Arguments \rangle$
+    \item $\Rightarrow \langle Identifier \rangle \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{S} \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{S} \ \langle ApplicationArgument \rangle \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{S K} \ \langle Arguments \rangle$
+    \item $\Rightarrow \texttt{S K} \ \langle ApplicationArgument \rangle$
+    \item $\Rightarrow \texttt{S K K}$
+\end{itemize}
+
+\end{document}
