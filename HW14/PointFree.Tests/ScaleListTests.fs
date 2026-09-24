@@ -113,3 +113,30 @@ let ``FsCheck: all three functions are equivalent for random inputs`` () =
     let prop ((x, l): (int * int list)) =
         scale x l = scalePointFree x l && scalePointFree x l = scalePipeline x l
     prop |> Check.QuickThrowOnFailure
+
+/// <summary>
+/// Tests that all derivation steps produce the same result as the original.
+/// </summary>
+[<Test>]
+let ``All scale steps produce same result as original`` () =
+    let x = 7
+    let l = [1; 2; 3]
+    let expected = scale x l
+    scaleStep1 x l |> should equal expected
+    scaleStep2 x l |> should equal expected
+    scaleStep3 x l |> should equal expected
+    scaleStep4 x l |> should equal expected
+    scaleStep5 x l |> should equal expected
+
+/// <summary>
+/// FsCheck test: verifies all derivation steps are equivalent for random inputs.
+/// </summary>
+[<Test>]
+let ``FsCheck: all scale steps are equivalent for random inputs`` () =
+    let prop ((x, l): (int * int list)) =
+        let expected = scaleStep1 x l
+        expected = scaleStep2 x l
+        && expected = scaleStep3 x l
+        && expected = scaleStep4 x l
+        && expected = scaleStep5 x l
+    prop |> Check.QuickThrowOnFailure
