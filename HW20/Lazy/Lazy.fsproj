@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="ILazy.fs" />
+    <Compile Include="LazySimple.fs" />
+    <Compile Include="LazyThreadSafe.fs" />
+    <Compile Include="LazyLockFree.fs" />
+  </ItemGroup>
+
+</Project>
